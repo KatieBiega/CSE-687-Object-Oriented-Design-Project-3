@@ -5,10 +5,10 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-#include <unistd.h>
+#include <thread>
 
-#include "../../mapDLL/MapDLL/MapInterface.h"
-#include "../../ReduceDLL/ReduceDLL/ReduceInterface.h"
+#include "C:\Users\moimeme\Downloads\CSE-687-Object-Oriented-Design-Project-2-main\CSE-687-Object-Oriented-Design-Project-2-main\mapDLL\mapDLL\MapInterface.h"
+#include "C:\Users\moimeme\Downloads\CSE-687-Object-Oriented-Design-Project-2-main\CSE-687-Object-Oriented-Design-Project-2-main\reduceDLL\reduceDLL\ReduceInterface.h"
 #include "File Management.h"
 
 #include <Windows.h>
@@ -29,11 +29,76 @@ typedef void (*ReduceFunction)(const char* input, char* output);
 typedef MapInterface* (*CREATE_MAPPER) ();
 typedef ReduceInterface* (*CREATE_REDUCER) ();
 
+HANDLE g_hChildStd_IN_Rd = NULL;
+HANDLE g_hChildStd_IN_Wr = NULL;
+HANDLE g_hChildStd_OUT_Rd = NULL;
+HANDLE g_hChildStd_OUT_Wr = NULL;
+
+PROCESS_INFORMATION piProcInfo;
+
+void CreateChildProcess()
+// Create a child process that uses the previously created pipes for STDIN and STDOUT.
+{
+    TCHAR szCmdline[] = TEXT("child");
+    //PROCESS_INFORMATION piProcInfo;
+    STARTUPINFO siStartInfo;
+    BOOL bSuccess = FALSE;
+
+    // Set up members of the PROCESS_INFORMATION structure. 
+
+    ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION));
+
+    // Set up members of the STARTUPINFO structure. 
+    // This structure specifies the STDIN and STDOUT handles for redirection.
+
+    ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
+    siStartInfo.cb = sizeof(STARTUPINFO);
+    siStartInfo.hStdError = g_hChildStd_OUT_Wr;
+    siStartInfo.hStdOutput = g_hChildStd_OUT_Wr;
+    siStartInfo.hStdInput = g_hChildStd_IN_Rd;
+    siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
+
+    // Create the child process. 
+
+    bSuccess = CreateProcess(NULL, // No module name (use command line)
+        szCmdline,     // command line 
+        NULL,          // process security attributes 
+        NULL,          // primary thread security attributes 
+        TRUE,          // handles are inherited 
+        0,             // creation flags 
+        NULL,          // use parent's environment 
+        NULL,          // use parent's current directory 
+        &siStartInfo,  // STARTUPINFO pointer 
+        &piProcInfo);  // receives PROCESS_INFORMATION 
+
+    // If an error occurs, exit the application. 
+    if (!bSuccess)
+    {
+        printf("CreateProcess failed (%d).\n", GetLastError());
+        return;
+    }
+    else
+    {
+        // Close handles to the child process and its primary thread.
+        // Some applications might keep these handles to monitor the status
+        // of the child process, for example. 
+
+        CloseHandle(piProcInfo.hProcess);
+        CloseHandle(piProcInfo.hThread);
+
+        // Close handles to the stdin and stdout pipes no longer needed by the child process.
+        // If they are not explicitly closed, there is no way to recognize that the child process has ended.
+
+        CloseHandle(g_hChildStd_OUT_Wr);
+        CloseHandle(g_hChildStd_IN_Rd);
+    }
+}
+
 int main() {
     cout << "Program started. Press any key to continue...\n";
     system("pause");
 
-    int pid = fork();
+    //int pid = fork();
 
 
     int R = 0; // this is the total number of processes, which should equal the number of files in the inputDirectory folder
@@ -45,14 +110,14 @@ int main() {
     string tempDirectory = "";
 
     string mapped_string;
-    string tempFilename = "TempFile.txt";
+    string tempFilename = "TempFile";
     string tempFileContent;
     string reduced_string;
     string outputFilename = "Final_OutputFile.txt";
     string successString = "";
     string successFilename = "SUCCESS.txt";
+    string finalTempFilename;
 
-    vector <string> fileStringVector;
     vector <string> fileStringVector;
 
     HMODULE mapDLL = LoadLibraryA("MapDLL.dll"); // load dll for map functions
@@ -101,21 +166,21 @@ int main() {
 
     cout << "Beginning map function\n";
     for (int i = 0; i < R; i++) {
+        
+        CreateChildProcess();
+        cout << "Strings from files passed to map function.\n";
         pMapper->map(fileStringVector[i]);
+     
+        mapped_string = pMapper->vector_export();     //Write mapped output string to intermediate file 
+        cout << "Mapping complete; exporting resulting string.\n";
+
+        finalTempFilename = tempFilename + to_string(i) + ".txt";
+
+        FileManage.WriteToTempFile(finalTempFilename, mapped_string);
+        cout << "String from mapping written to temp file.\n";
     }
 
-    cout << "Strings from files passed to map function.\n";
-    // 
-    
-    
-
-
-    
-    cout << "Mapping complete; exporting resulting string.\n";
-    mapped_string = pMapper->vector_export();     //Write mapped output string to intermediate file 
-
-    FileManage.WriteToTempFile(tempFilename, mapped_string);
-    cout << "String from mapping written to temp file.\n";
+    TerminateProcess(piProcInfo.hProcess, 0);
 
     //Read from intermediate file and pass data to Reduce class
     tempFileContent = FileManage.ReadFromTempFile(tempFilename);
