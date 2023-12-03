@@ -6,8 +6,8 @@
 #include <vector>
 #include <algorithm>
 
-#include "../../mapDLL/MapDLL/MapInterface.h"
-#include "../../ReduceDLL/ReduceDLL/ReduceInterface.h"
+#include "C:\Users\moimeme\Downloads\CSE-687-Object-Oriented-Design-Project-2-main\CSE-687-Object-Oriented-Design-Project-2-main\mapDLL\mapDLL\MapInterface.h"
+#include "C:\Users\moimeme\Downloads\CSE-687-Object-Oriented-Design-Project-2-main\CSE-687-Object-Oriented-Design-Project-2-main\reduceDLL\reduceDLL\ReduceInterface.h"
 #include "File Management.h"
 
 #include <Windows.h>
@@ -23,11 +23,8 @@ using std::cin;
 using std::endl;
 using std::mbstowcs;
 
-
 typedef MapInterface* (*CREATE_MAPPER) ();
 typedef ReduceInterface* (*CREATE_REDUCER) ();
-
-
 
 
 int main(int argc, char *argv[]) {
@@ -63,10 +60,12 @@ int main(int argc, char *argv[]) {
     string outputFilename = "Final_OutputFile.txt";
     string successString = "";
     string successFilename = "SUCCESS.txt";
-    string executableName = "Project3_main_static.exe";
-    string commandLineArguments = "needexehere needfunctionselectionhere needsourcefilepathhere needdestinationfilepathhere";
-    string functionSelector = ""; // this becomes argv[2] when uesd as a parameter in a child process;
 
+    string executableName = argv[0];
+    string sourceName = argv[2];
+    string destinationName = argv[3];
+    string functionSelector = argv[1]; // this becomes argv[1] when uesd as a parameter in a child process;
+    string commandLineArguments = "needexehere needfunctionselectionhere needsourcefilepathhere needdestinationfilepathhere";
 
     HMODULE mapDLL = LoadLibraryA("MapDLL.dll"); // load dll for map functions
     if (mapDLL == NULL) // exit main function if mapDLL is not found
@@ -113,10 +112,11 @@ int main(int argc, char *argv[]) {
 
     if (argv[1] == "map") {
 
-        tempDirectory = argv[3];
-
         CREATE_MAPPER mapperPtr = (CREATE_MAPPER)GetProcAddress(mapDLL, "CreateMap"); // create pointer to function to create new Map object
         MapInterface* pMapper = mapperPtr();
+
+        fileString = FileManage.ReadSingleFile(inputFilename);     //Read single file into single string
+        cout << "Single file read.\n";
 
         cout << "Strings from files passed to map function.\n";
         pMapper->map(fileString);
@@ -162,9 +162,12 @@ int main(int argc, char *argv[]) {
     }
 
     R = FileManage.getCount();
+    vector <string> filenames = FileManage.getFilenames();
 
     cout << "Creating processes for map function\n";
     for (int i = 0; i < R; i++) {
+
+        inputFilename = inputDirectory + filenames[i];
 
         // argv[0]: executable name; argv[1]: function selector; argv[2]: file name/path, argv[3]: temp directory
         commandLineArguments = executableName + " " + "";
@@ -237,7 +240,7 @@ int main(int argc, char *argv[]) {
     //all reduce processes should be done at this point.
 
 
-    fileString = FileManage.ReadAllFiles();     //Read file into single string
+    fileString = FileManage.ReadAllFiles();     //Read all file into single string
     cout << "All files read.\n";
 
     FileManage.WriteToOutputFile(successFilename, successString);
