@@ -57,7 +57,7 @@ string FileManagement::ReadSingleFile(string filePath) {
 
     // open a single file
 
-        fileStream.open(file.path().string());
+        fileStream.open(filePath);
 
         while (getline(fileStream, inputLine))
         {
@@ -124,10 +124,13 @@ int FileManagement::getCount() {
 vector<string> FileManagement::getFilenames() {
 
     vector<string> fileNames;
-
+    string filename;
+    
     for (auto& f : std::filesystem::directory_iterator(inputDirectory))
     {
-        fileNames.push_back(f);
+        filename = f.path().filename().string();
+        //const auto
+        fileNames.push_back(filename);
     }
 
     return fileNames;
