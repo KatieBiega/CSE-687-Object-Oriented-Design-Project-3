@@ -32,12 +32,14 @@ int main(int argc, char *argv[]) {
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
 
+    cout << "Program started. step 1...\n";
+
     ZeroMemory(&si, sizeof(si));
     si.cb = sizeof(si);
     ZeroMemory(&pi, sizeof(pi));
 
 
-    //cout << "Program started. Press any key to continue...\n";
+    cout << "Program started. step 2...\n";
     //system("pause");
 
 
@@ -49,7 +51,7 @@ int main(int argc, char *argv[]) {
     string outputDirectory = "";
     string tempDirectory = "";
 
-    wchar_t* wtemp = (wchar_t*)malloc(0);
+    wchar_t* wtemp = (wchar_t*)malloc(10);
     size_t commandLength = 0;
 
     string mapped_string;
@@ -67,6 +69,8 @@ int main(int argc, char *argv[]) {
     string functionSelector = argv[1]; // this becomes argv[1] when uesd as a parameter in a child process;
     string commandLineArguments = "needexehere needfunctionselectionhere needsourcefilepathhere needdestinationfilepathhere";
 
+    cout << "Program started. step 3...\n";
+
     HMODULE mapDLL = LoadLibraryA("MapDLL.dll"); // load dll for map functions
     if (mapDLL == NULL) // exit main function if mapDLL is not found
     {
@@ -81,6 +85,8 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    cout << "Program started. step 4...\n";
+
     if (argv[1] == "map") {
         inputDirectory = "";
         outputDirectory = "NULL";
@@ -91,7 +97,6 @@ int main(int argc, char *argv[]) {
         outputDirectory = "";
         tempDirectory = "";
     }
-
     else{
 
     cout << "==== MAP & REDUCE ====\n\n"; // add title
@@ -173,10 +178,9 @@ int main(int argc, char *argv[]) {
         commandLineArguments = executableName + " " + "";
         commandLength = commandLineArguments.length();
 
-        wtemp = (wchar_t*) malloc (4 * commandLineArguments.size());
+        wtemp = (wchar_t*)malloc(4 * commandLineArguments.size());
         mbstowcs(wtemp, commandLineArguments.c_str(), commandLength); //includes null
         LPWSTR args = wtemp;
-        free(wtemp); // free memory of wtemp 
 
         // Start the child process. 
         if (!CreateProcess(
@@ -197,6 +201,8 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    free(wtemp); // free memory of wtemp 
+
     // Wait until all child processes exits.
     WaitForSingleObject(pi.hProcess, INFINITE);
 
@@ -206,6 +212,7 @@ int main(int argc, char *argv[]) {
 
     //All child processes for mapping sould be completed at this point;
 
+    /*
     cout << "Creating processes for reduce function\n";
     for (int i = 0; i < R; i++) {
 
@@ -216,7 +223,6 @@ int main(int argc, char *argv[]) {
         wtemp = (wchar_t*)malloc(4 * commandLineArguments.size());
         mbstowcs(wtemp, commandLineArguments.c_str(), commandLength); //includes null
         LPWSTR args = wtemp;
-        free(wtemp); // free memory of wtemp  
 
         // Start the child process. 
         if (!CreateProcess(
@@ -237,8 +243,10 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    //all reduce processes should be done at this point.
+    free(wtemp); // free memory of wtemp  
 
+    //all reduce processes should be done at this point.
+    */
 
     fileString = FileManage.ReadAllFiles();     //Read all file into single string
     cout << "All files read.\n";
