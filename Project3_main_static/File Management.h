@@ -12,10 +12,13 @@ public:
     FileManagement(const string& inputDir, const string& outputDir, const string& tempDir);
 
     string ReadFromTempFile(const string& fileName);
-    vector<string> ReadAllFiles();
+    string ReadAllFiles();
+    string ReadSingleFile(string path);
     void WriteToTempFile(const string& fileName, const string& data);
     void WriteToOutputFile(const string& fileName, const string& data);
     int getCount();
+    vector<string> getFilenames();
+
 
     template<typename T>
     void WriteToTempOrOutputFile(const string& fileName, const string& data);
@@ -24,7 +27,6 @@ private:
     string inputDirectory;
     string outputDirectory;
     string tempDirectory;
-    int fileCount = 0;
 };
 
 template<typename T>
