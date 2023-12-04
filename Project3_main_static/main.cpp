@@ -180,6 +180,8 @@ int main(int argc, char *argv[]) {
     R = FileManage.getCount();
     vector <string> filenames = FileManage.getFilenames();
 
+
+
     cout << "Creating processes for map function\n";
     for (int i = 0; i < R; i++) {
 
@@ -187,7 +189,7 @@ int main(int argc, char *argv[]) {
         tempFilename = tempDirectory + filenames[i] + " temp";
 
         // argv[0]: executable name; argv[1]: function selector; argv[2]: file name/path, argv[3]: temp directory
-        commandLineArguments = executableName + " map" + inputFilename + " " + tempDirectory;
+        commandLineArguments = executableName  + " map " + inputFilename + " " + tempDirectory;
         commandLength = commandLineArguments.length();
 
         wtemp = (wchar_t*)malloc(4 * commandLineArguments.size());
@@ -211,6 +213,7 @@ int main(int argc, char *argv[]) {
             printf("CreateProcess for mapper failed (%d).\n", GetLastError());
             return(1);
         }
+        cout << " Process was created successfully....";
     }
 
     free(wtemp); // free memory of wtemp 
