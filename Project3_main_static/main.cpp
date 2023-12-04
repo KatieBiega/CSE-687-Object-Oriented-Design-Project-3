@@ -6,8 +6,8 @@
 #include <vector>
 #include <algorithm>
 
-#include "C:\Users\moimeme\Downloads\CSE-687-Object-Oriented-Design-Project-2-main\CSE-687-Object-Oriented-Design-Project-2-main\mapDLL\mapDLL\MapInterface.h"
-#include "C:\Users\moimeme\Downloads\CSE-687-Object-Oriented-Design-Project-2-main\CSE-687-Object-Oriented-Design-Project-2-main\reduceDLL\reduceDLL\ReduceInterface.h"
+#include "C:\Users\d17jo\Desktop\CSE-687-Object-Oriented-Design-Project-2-main\mapDLL\mapDLL\MapInterface.h"
+#include "C:\Users\d17jo\Desktop\CSE-687-Object-Oriented-Design-Project-2-main\reduceDLL\reduceDLL\ReduceInterface.h"
 #include "File Management.h"
 
 #include <Windows.h>
@@ -43,13 +43,21 @@ int main(int argc, char *argv[]) {
     //system("pause");
 
 
+
+
     int R = 0; // this is the total number of processes, which should equal the number of files in the inputDirectory folder
 
-    string fileName = "";
-    string fileString = "";
-    string inputDirectory = "";
-    string outputDirectory = "";
-    string tempDirectory = "";
+    string fileName = "";  // Temporary
+    string fileString = "";  // Temporary
+    string inputDirectory = "";  // Temporary
+    string outputDirectory = "";  // Temporary
+    string tempDirectory = "";  // Temporary
+
+    string executableName = "Project3_static_main.exe";  // Temporary
+    string sourceName = "";  // Temporary
+    string destinationName = "";  // Temporary
+
+
 
     wchar_t* wtemp = (wchar_t*)malloc(10);
     size_t commandLength = 0;
@@ -63,11 +71,14 @@ int main(int argc, char *argv[]) {
     string successString = "";
     string successFilename = "SUCCESS.txt";
 
+    /*
     string executableName = argv[0];
     string sourceName = argv[2];
     string destinationName = argv[3];
     string functionSelector = argv[1]; // this becomes argv[1] when uesd as a parameter in a child process;
+    */
     string commandLineArguments = "needexehere needfunctionselectionhere needsourcefilepathhere needdestinationfilepathhere";
+    
 
     cout << "Program started. step 3...\n";
 
@@ -173,9 +184,10 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < R; i++) {
 
         inputFilename = inputDirectory + filenames[i];
+        tempFilename = tempDirectory + filenames[i] + " temp";
 
         // argv[0]: executable name; argv[1]: function selector; argv[2]: file name/path, argv[3]: temp directory
-        commandLineArguments = executableName + " " + "";
+        commandLineArguments = executableName + " map" + inputFilename + " " + tempDirectory;
         commandLength = commandLineArguments.length();
 
         wtemp = (wchar_t*)malloc(4 * commandLineArguments.size());
