@@ -29,14 +29,35 @@ typedef ReduceInterface* (*CREATE_REDUCER) ();
 
 int main(int argc, char *argv[]) {
 
-    STARTUPINFO si;
-    PROCESS_INFORMATION pi;
+    cout << "Program started. step 1...\n";
 
-    cout << "Number of arguments: " << argc << "\n";
+    STARTUPINFO sim;
+    PROCESS_INFORMATION pim;
+
+    STARTUPINFO sir;
+    PROCESS_INFORMATION pir;
+
+    STARTUPINFO sif;
+    PROCESS_INFORMATION pif;
+
+    ZeroMemory(&sim, sizeof(sim));
+    sim.cb = sizeof(sim);
+    ZeroMemory(&pim, sizeof(pim));
+
+    ZeroMemory(&sir, sizeof(sir));
+    sir.cb = sizeof(sir);
+    ZeroMemory(&pir, sizeof(pir));
+
+    ZeroMemory(&sif, sizeof(sif));
+    sif.cb = sizeof(sif);
+    ZeroMemory(&pif, sizeof(pif));
+
 
     string functionSelector;
     string sourceName;
     string destinationName;
+
+    cout << "Number of arguments: " << argc << "\n";
 
     if (argc > 1){
     for (int i = 0; i < (argc - 2); i++) {
@@ -48,11 +69,7 @@ int main(int argc, char *argv[]) {
         destinationName = argv[3];
     }
 
-    cout << "Program started. step 1...\n";
 
-    ZeroMemory(&si, sizeof(si));
-    si.cb = sizeof(si);
-    ZeroMemory(&pi, sizeof(pi));
 
 
     cout << "Program started. step 2...\n";
@@ -119,6 +136,11 @@ int main(int argc, char *argv[]) {
         outputDirectory = "";
         tempDirectory = "";
     }
+    else if (functionSelector == "finalreduce") {
+        inputDirectory = "";
+        outputDirectory = "";
+        tempDirectory = "";
+    }
     else{
 
     cout << "==== MAP & REDUCE ====\n\n"; // add title
@@ -127,14 +149,14 @@ int main(int argc, char *argv[]) {
     outputDirectory = "../../io_files/output_directory";
     tempDirectory = "../../io_files/temp_directory";
 
-    /*
-    cout << "Enter the input directory: "; // prompt user to input i/o directories
-    cin >> inputDirectory;
-    cout << "Enter the output directory: ";
-    cin >> outputDirectory;
-    cout << "Enter the temp directory: ";
-    cin >> tempDirectory;
-    */
+    
+    //cout << "Enter the input directory: "; // prompt user to input i/o directories
+    //cin >> inputDirectory;
+    //cout << "Enter the output directory: ";
+    //cin >> outputDirectory;
+    //cout << "Enter the temp directory: ";
+    //cin >> tempDirectory;
+    
     }
 
     //WORKFLOW//
@@ -143,28 +165,30 @@ int main(int argc, char *argv[]) {
     cout << "FileManagement Class initialized.\n";
 
     if (functionSelector == "map") {
-        /*
+        
         CREATE_MAPPER mapperPtr = (CREATE_MAPPER)GetProcAddress(mapDLL, "CreateMap"); // create pointer to function to create new Map object
         MapInterface* pMapper = mapperPtr();
 
         fileString = FileManage.ReadSingleFile(sourceName);     //Read single file into single string
-        cout << "Single file read.\n";
+        //cout << "Single file read.\n";
 
-        cout << "Strings from files passed to map function.\n";
+        //cout << "Strings from files passed to map function.\n";
         pMapper->map(fileString);
 
-        cout << "Mapping complete; exporting resulting string.\n";
+        //cout << "Mapping complete; exporting resulting string.\n";
         mapped_string = pMapper->vector_export();     //Write mapped output string to intermediate file 
 
-        FileManage.WriteToTempFile(destinationName, mapped_string);
+
+
+        FileManage.WriteToTempFile(outputFilename, mapped_string);
         cout << "String from mapping written to temp file.\n";
-        */
+        
         return 0;
         
     }
 
     else if (functionSelector == "reduce") {
-
+        
         CREATE_REDUCER reducerPtr = (CREATE_REDUCER)GetProcAddress(reduceDLL, "CreateReduce");  // create pointer to function to create new Reduce object
         ReduceInterface* pReducer = reducerPtr();
 
@@ -189,9 +213,48 @@ int main(int argc, char *argv[]) {
 
         //Sorted, aggregated, and reduced output string is written into final output file
         FileManage.WriteToOutputFile(destinationName, reduced_string);
-        //cout << "string written to output file.\n";
+        cout << "Reduced string written to output file.\n";
+        
 
         return 0;
+
+    }
+
+    else if (functionSelector == "finalreduce") {
+
+        CREATE_REDUCER reducerPtr = (CREATE_REDUCER)GetProcAddress(reduceDLL, "CreateReduce");  // create pointer to function to create new Reduce object
+        ReduceInterface* pReducer = reducerPtr();
+
+        //Read from intermediate file and pass data to Reduce class
+        fileString = FileManage.ReadAllFiles(); //Read all files in the output folder
+        cout << "Single file read.\n";
+
+        pReducer->import(fileString);
+        cout << fileString << "\n";
+        cout << "String imported by reduce class function and placed in vector.\n";
+
+        pReducer->sort();
+        //cout << "Vector sorted.\n";
+
+        pReducer->aggregate();
+        //cout << "Vector aggregated.\n";
+
+        pReducer->reduce();
+        //cout << "Vector reduced.\n";
+
+        reduced_string = pReducer->vector_export();
+        //cout << "Vector exported to string.\n";
+
+        outputFilename = "FinalOutput.txt";
+
+        cout << outputFilename << "\n";
+        //Sorted, aggregated, and reduced output string is written into final output file
+        FileManage.WriteToOutputFile(outputFilename, reduced_string);
+        cout << "Final reduced string written to output file.\n";
+
+
+        return 0;
+
     }
 
     else{
@@ -219,7 +282,7 @@ int main(int argc, char *argv[]) {
         mbstowcs(wtemp, commandLineArguments.c_str(), commandLength); //includes null
         LPWSTR args = wtemp;
 
-        // Start the child process. 
+        // Start the child map process. 
         if (!CreateProcess(
             NULL, // module name
             args,        // Command line
@@ -229,27 +292,29 @@ int main(int argc, char *argv[]) {
             0,              // No creation flags
             NULL,           // Use parent's environment block
             NULL,           // Use parent's starting directory 
-            &si,            // Pointer to STARTUPINFO structure
-            &pi)           // Pointer to PROCESS_INFORMATION structure
+            &sim,            // Pointer to STARTUPINFO structure
+            &pim)           // Pointer to PROCESS_INFORMATION structure
            )
         {
             cout << "CreateProcess for mapper failed" << GetLastError() << "\n";
-
+            
         }
         else {
-            cout << " Process was created successfully...\n";
-
+            cout << "Map process was created successfully...\n";
+            WaitForSingleObject(pim.hProcess, INFINITE);
         }
 
         free(wtemp); // free memory of wtemp
 
     }
-    WaitForSingleObject(pi.hProcess, INFINITE);
-    CloseHandle(pi.hProcess);
-    CloseHandle(pi.hThread);
-    // Wait until all child processes exits.
+    
+    CloseHandle(pim.hProcess);
+    CloseHandle(pim.hThread);
 
-    //All child processes for mapping sould be completed at this point;
+    cout << "All mapping processes complete.\n";
+
+
+    //All child processes for mapping sould be completed at this point.
 
     
     cout << "Creating processes for reduce function\n";
@@ -281,7 +346,7 @@ int main(int argc, char *argv[]) {
         mbstowcs(wtemp, commandLineArguments.c_str(), commandLength); //includes null
         LPWSTR args = wtemp;
 
-        // Start the child process. 
+        // Start the child reduce process. 
         if (!CreateProcess(
             NULL, // module name
             args,        // Command line
@@ -291,27 +356,69 @@ int main(int argc, char *argv[]) {
             0,              // No creation flags
             NULL,           // Use parent's environment block
             NULL,           // Use parent's starting directory 
-            &si,            // Pointer to STARTUPINFO structure
-            &pi)           // Pointer to PROCESS_INFORMATION structure
+            &sir,            // Pointer to STARTUPINFO structure
+            &pir)           // Pointer to PROCESS_INFORMATION structure
             )
         {
-            cout << "CreateProcess for mapper failed" << GetLastError() << "\n";
+            cout << "CreateProcess for reducer failed" << GetLastError() << "\n";
 
         }
         else {
-            cout << " Process was created successfully...\n";
+            cout << "Reduce process was created successfully...\n";
+            WaitForSingleObject(pir.hProcess, INFINITE);
             
 
         }
         free(wtemp); // free memory of wtemp
     }
-    WaitForSingleObject(pi.hProcess, INFINITE);
-    CloseHandle(pi.hProcess);
-    CloseHandle(pi.hThread);
+
+    CloseHandle(pir.hProcess);
+    CloseHandle(pir.hThread);
     
-    
+
+    cout << "Creating process for final reduce function\n";
+
+        // argv[0]: executable name; argv[1]: function selector; argv[2]: temp path/filename, argv[3]: output path/filename
+        commandLineArguments = "Project3_main_static.exe finalreduce " + outputDirectory + " " + outputFilename + " ";
+        commandLength = commandLineArguments.length();
+
+        wtemp = (wchar_t*)malloc(4 * commandLineArguments.size());
+        mbstowcs(wtemp, commandLineArguments.c_str(), commandLength); //includes null
+        LPWSTR args = wtemp;
+
+        // Start the child reduce process. 
+        if (!CreateProcess(
+            NULL, // module name
+            args,        // Command line
+            NULL,           // Process handle not inheritable
+            NULL,           // Thread handle not inheritable
+            FALSE,          // Set handle inheritance to FALSE
+            0,              // No creation flags
+            NULL,           // Use parent's environment block
+            NULL,           // Use parent's starting directory 
+            &sif,            // Pointer to STARTUPINFO structure
+            &pif)           // Pointer to PROCESS_INFORMATION structure
+            )
+        {
+            cout << "CreateProcess for final reducer failed" << GetLastError() << "\n";
+
+        }
+        else {
+            cout << "Final Reduce Process was created successfully...\n";
+
+            WaitForSingleObject(pif.hProcess, INFINITE);
+
+
+        }
+        free(wtemp); // free memory of wtemp
     }
 
+    CloseHandle(pif.hProcess);
+    CloseHandle(pif.hThread);
+
+
+
+    cout << "Final reducer process complete.\n";
 
     //all reducer child processes should be done at this point.
     

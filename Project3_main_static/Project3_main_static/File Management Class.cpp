@@ -31,13 +31,13 @@ string FileManagement::ReadAllFiles() {
 
 
     // functtion to iterate directory files content into a string
-    for (auto& file : std::filesystem::directory_iterator(inputDirectory)) {
+    for (auto& file : std::filesystem::directory_iterator(outputDirectory)) {
 
         fileStream.open(file.path().string());
 
         while (getline(fileStream, inputLine))
         {
-            content = content + inputLine;
+            content = content + "\n" + inputLine;
         }
 
         fullContent = fullContent + content;
@@ -61,7 +61,7 @@ string FileManagement::ReadSingleFile(string filePath) {
 
         while (getline(fileStream, inputLine))
         {
-            content = content + inputLine;
+            content = content + "\n" + inputLine;
         }
 
     return content; // returns directory and saves to string
@@ -94,9 +94,10 @@ void FileManagement::WriteToTempFile(const string& fileName, const string& data)
         cerr << "Error: Unable to write to temporary file " << fileName << endl; // error if unable to write to temp file
     }
 }
+
 //writes data to file in an output directory
 void FileManagement::WriteToOutputFile(const string& fileName, const string& data) {
-    ofstream file(outputDirectory + "/" + fileName);
+    ofstream file(fileName);
     if (file.is_open()) {
         file << data;
         file.close();
@@ -135,5 +136,7 @@ vector<string> FileManagement::getFilenames() {
 
     return fileNames;
 }
+
+
 
 
