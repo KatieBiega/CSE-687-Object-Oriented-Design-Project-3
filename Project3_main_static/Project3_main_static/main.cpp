@@ -137,25 +137,23 @@ int main(int argc, char *argv[]) {
         tempDirectory = "";
     }
     else if (functionSelector == "finalreduce") {
-        inputDirectory = "";
-        outputDirectory = "";
-        tempDirectory = "";
+        outputDirectory = argv[2];
     }
     else{
 
     cout << "==== MAP & REDUCE ====\n\n"; // add title
 
-    inputDirectory = "../../io_files/input_directory";
-    outputDirectory = "../../io_files/output_directory";
-    tempDirectory = "../../io_files/temp_directory";
+    //inputDirectory = "../../io_files/input_directory";
+    //outputDirectory = "../../io_files/output_directory";
+    //tempDirectory = "../../io_files/temp_directory";
 
     
-    //cout << "Enter the input directory: "; // prompt user to input i/o directories
-    //cin >> inputDirectory;
-    //cout << "Enter the output directory: ";
-    //cin >> outputDirectory;
-    //cout << "Enter the temp directory: ";
-    //cin >> tempDirectory;
+    cout << "Enter the input directory: "; // prompt user to input i/o directories
+    cin >> inputDirectory;
+    cout << "Enter the output directory: ";
+    cin >> outputDirectory;
+    cout << "Enter the temp directory: ";
+    cin >> tempDirectory;
     
     }
 
@@ -196,8 +194,6 @@ int main(int argc, char *argv[]) {
         fileString = FileManage.ReadSingleFile(sourceName);     //Read single file into single string
         //cout << "Single file read.\n";
 
-        FileManage.deleteAllFilesInDirectory(); //Clear directory contents (input directory name to process) 
-
         pReducer->import(fileString);
         //cout << "String imported by reduce class function and placed in vector.\n";
 
@@ -227,9 +223,11 @@ int main(int argc, char *argv[]) {
         CREATE_REDUCER reducerPtr = (CREATE_REDUCER)GetProcAddress(reduceDLL, "CreateReduce");  // create pointer to function to create new Reduce object
         ReduceInterface* pReducer = reducerPtr();
 
+        cout << "Output Directory: " + outputDirectory + "\n";
+
         //Read from intermediate file and pass data to Reduce class
         fileString = FileManage.ReadAllFiles(); //Read all files in the output folder
-        cout << "Single file read.\n";
+        cout << "All files read.\n";
 
         pReducer->import(fileString);
         cout << fileString << "\n";
@@ -249,10 +247,13 @@ int main(int argc, char *argv[]) {
 
         outputFilename = "FinalOutput.txt";
 
+        outputFilename = outputDirectory + "/" + outputFilename;
+
         cout << outputFilename << "\n";
         //Sorted, aggregated, and reduced output string is written into final output file
         FileManage.WriteToOutputFile(outputFilename, reduced_string);
         cout << "Final reduced string written to output file.\n";
+
 
 
         return 0;
@@ -318,6 +319,7 @@ int main(int argc, char *argv[]) {
 
     //All child processes for mapping sould be completed at this point.
 
+    FileManage.deleteAllFilesInDirectory(); //Clear output directory contents
     
     cout << "Creating processes for reduce function\n";
     for (int i = 0; i < R; i++) {
@@ -380,7 +382,7 @@ int main(int argc, char *argv[]) {
 
     cout << "Creating process for final reduce function\n";
 
-        // argv[0]: executable name; argv[1]: function selector; argv[2]: temp path/filename, argv[3]: output path/filename
+        // argv[0]: executable name; argv[1]: function selector; argv[2]: temp path/filename, argv[3]: final output filename
         commandLineArguments = "Project3_main_static.exe finalreduce " + outputDirectory + " " + outputFilename + " ";
         commandLength = commandLineArguments.length();
 

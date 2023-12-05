@@ -16,9 +16,9 @@ public:
     string ReadSingleFile(string path);
     void WriteToTempFile(const string& fileName, const string& data);
     void WriteToOutputFile(const string& fileName, const string& data);
+    void deleteAllFilesInDirectory();
     int getCount();
     vector<string> getFilenames();
-    void deleteAllFilesInDirectory();
 
 
     template<typename T>
@@ -38,6 +38,7 @@ void FileManagement::WriteToTempOrOutputFile(const string& fileName, const strin
         fileStream.close();
     }
 }
+
 
 #endif
 

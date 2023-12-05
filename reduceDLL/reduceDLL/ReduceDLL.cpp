@@ -64,7 +64,7 @@ void Reduce::aggregate() {
 	for (const auto& pair : wordCount) {
 		aggregatedVector.push_back("(\"" + pair.first + "\", " + std::to_string(pair.second) + ")");
 	}
-}; 
+};
 
 void Reduce::reduce() {
 	for (const std::string& line : aggregatedVector) {
