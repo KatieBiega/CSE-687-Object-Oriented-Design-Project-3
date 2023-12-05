@@ -137,6 +137,9 @@ vector<string> FileManagement::getFilenames() {
     return fileNames;
 }
 
-
+void FileManagement::deleteAllFilesInDirectory() {
+    for (auto& file : std::filesystem::directory_iterator(inputDirectory)) 
+        std::filesystem::remove_all(file.path());
+}
 
 
