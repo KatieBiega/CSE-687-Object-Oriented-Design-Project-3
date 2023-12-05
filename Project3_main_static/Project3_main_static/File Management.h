@@ -18,6 +18,7 @@ public:
     void WriteToOutputFile(const string& fileName, const string& data);
     int getCount();
     vector<string> getFilenames();
+    void deleteAllFilesInDirectory();
 
 
     template<typename T>
