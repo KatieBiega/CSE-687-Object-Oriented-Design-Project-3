@@ -196,8 +196,6 @@ int main(int argc, char *argv[]) {
         fileString = FileManage.ReadSingleFile(sourceName);     //Read single file into single string
         //cout << "Single file read.\n";
 
-        FileManage.deleteAllFilesInDirectory(); //Clear directory contents (input directory name to process) 
-
         pReducer->import(fileString);
         //cout << "String imported by reduce class function and placed in vector.\n";
 
@@ -230,6 +228,8 @@ int main(int argc, char *argv[]) {
         //Read from intermediate file and pass data to Reduce class
         fileString = FileManage.ReadAllFiles(); //Read all files in the output folder
         cout << "Single file read.\n";
+
+        FileManage.deleteAllFilesInDirectory(); //Clear directory contents (input directory name to process) 
 
         pReducer->import(fileString);
         cout << fileString << "\n";
