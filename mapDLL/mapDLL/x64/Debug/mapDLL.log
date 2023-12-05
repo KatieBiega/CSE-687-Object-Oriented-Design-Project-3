@@ -1,0 +1,9 @@
+﻿  pch.cpp
+  dllmain.cpp
+  MapDLL.cpp
+C:\Users\tmreeves\OneDrive - Syracuse University\Computer Engineering\CSE 687 Object Oriented Design\Project 3\Project3_files\mapDLL\mapDLL\MapDLL.cpp(35,58): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\tmreeves\OneDrive - Syracuse University\Computer Engineering\CSE 687 Object Oriented Design\Project 3\Project3_files\mapDLL\mapDLL\MapDLL.cpp(74,6): warning C4273: 'CreateMap': inconsistent dll linkage
+C:\Users\tmreeves\OneDrive - Syracuse University\Computer Engineering\CSE 687 Object Oriented Design\Project 3\Project3_files\mapDLL\mapDLL\MapDLL.h(36,22): message : see previous definition of 'CreateMap'
+  Generating Code...
+     Creating library C:\Users\tmreeves\OneDrive - Syracuse University\Computer Engineering\CSE 687 Object Oriented Design\Project 3\Project3_files\mapDLL\x64\Debug\mapDLL.lib and object C:\Users\tmreeves\OneDrive - Syracuse University\Computer Engineering\CSE 687 Object Oriented Design\Project 3\Project3_files\mapDLL\x64\Debug\mapDLL.exp
+  mapDLL.vcxproj -> C:\Users\tmreeves\OneDrive - Syracuse University\Computer Engineering\CSE 687 Object Oriented Design\Project 3\Project3_files\mapDLL\x64\Debug\mapDLL.dll
