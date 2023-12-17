@@ -285,6 +285,7 @@ int main(int argc, char *argv[]) {
         mbstowcs(wtemp, commandLineArguments.c_str(), commandLength); //includes null
         LPWSTR args = wtemp;
 
+        //child process creation code derived from Microsoft tutorial example here: https://learn.microsoft.com/en-us/windows/win32/procthread/creating-processes
         // Start the child map process. 
         if (!CreateProcess(
             NULL, // module name
@@ -350,6 +351,7 @@ int main(int argc, char *argv[]) {
         mbstowcs(wtemp, commandLineArguments.c_str(), commandLength); //includes null
         LPWSTR args = wtemp;
 
+        //child process creation code derived from Microsoft tutorial example here: https://learn.microsoft.com/en-us/windows/win32/procthread/creating-processes
         // Start the child reduce process. 
         if (!CreateProcess(
             NULL, // module name
